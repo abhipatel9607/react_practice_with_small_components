@@ -24,6 +24,12 @@ const TravelList = () => {
 			)
 		);
 	}
+	function handleClearList() {
+		const confirmed = window.confirm(
+			"Are you sure you want to Delete all items"
+		);
+		if (confirmed) setItem([]);
+	}
 
 	return (
 		<div className="app">
@@ -33,6 +39,7 @@ const TravelList = () => {
 				items={items}
 				onDeleteItem={handleDeleteItem}
 				onToggleItem={handleToggleItem}
+				onClearList={handleClearList}
 			/>
 			<Stats items={items} />
 		</div>
@@ -54,7 +61,6 @@ const Form = ({ onAddItems }) => {
 		if (!description) return;
 
 		const newItem = { id: Date.now(), description, quantity, packed: false };
-		console.log(newItem);
 		onAddItems(newItem);
 
 		setDescription("");
@@ -86,11 +92,23 @@ const Form = ({ onAddItems }) => {
 };
 // #############################################################################################
 
-const PackingList = ({ items, onDeleteItem, onToggleItem }) => {
+const PackingList = ({ items, onDeleteItem, onToggleItem, onClearList }) => {
+	const [sortBy, setSortBy] = useState("input");
+	let sortedItem;
+	if (sortBy === "input") sortedItem = items;
+	if (sortBy === "description")
+		sortedItem = items
+			.slice()
+			.sort((a, b) => a.description.localeCompare(b.description));
+	if (sortBy === "packed")
+		sortedItem = items
+			.slice()
+			.sort((a, b) => Number(a.packed) - Number(b.packed));
+
 	return (
-		<div>
-			<ul className="list">
-				{items.map((item) => {
+		<div className="list">
+			<ul>
+				{sortedItem.map((item) => {
 					return (
 						<Item
 							onDeleteItem={onDeleteItem}
@@ -101,12 +119,24 @@ const PackingList = ({ items, onDeleteItem, onToggleItem }) => {
 					);
 				})}
 			</ul>
+			<div className="actions">
+				<select
+					name=""
+					id=""
+					value={sortBy}
+					onChange={(e) => setSortBy(e.target.value)}
+				>
+					<option value="input">SORT BY INPUT ORDER</option>
+					<option value="description">SORT BY DESCRIPTION</option>
+					<option value="packed">SORT BY PACKED STATUS</option>
+				</select>
+				<button onClick={onClearList}>Clear List</button>
+			</div>
 		</div>
 	);
 };
 
 const Item = ({ item, onDeleteItem, onToggleItem }) => {
-	console.log(item);
 	return (
 		<li>
 			<input
@@ -128,6 +158,13 @@ const Item = ({ item, onDeleteItem, onToggleItem }) => {
 // #############################################################################################
 
 const Stats = ({ items }) => {
+	if (items.length === 0)
+		return (
+			<p className="footer">
+				<em>Start adding some items to your packing list..</em>
+			</p>
+		);
+
 	const numItems = items.length;
 	const packedItemp = items.filter((item) => item.packed).length;
 	const percentage = Math.round((packedItemp * 100) / numItems);
