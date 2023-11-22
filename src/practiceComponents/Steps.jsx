@@ -2,6 +2,12 @@ import { useState } from "react";
 
 import "../styles/Steps.css";
 
+const messages = [
+	"Learn React ⚛️",
+	"Apply for jobs 💼",
+	"Invest your new income 🤑",
+];
+
 function Steps() {
 	const [count, setCount] = useState(1);
 	const [isOpen, setIsOpen] = useState(true);
@@ -31,7 +37,9 @@ function Steps() {
 						<div className={count >= 2 ? "active" : ""}>2</div>
 						<div className={count >= 3 ? "active" : ""}>3</div>
 					</div>
-					<p className="message"></p>
+					<p className="message">
+						Step {count}: {messages[count - 1]}
+					</p>
 					<div className="buttons">
 						<button
 							style={{ backgroundColor: "#7950f2", color: "#fff" }}
